@@ -21,237 +21,273 @@ package org.audit4j.core.dto;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+
+import com.google.gson.Gson;
+
 /**
  * The Class AuditEvent.
- * 
+ *
  * @author <a href="mailto:janith3000@gmail.com">Janith Bandara</a>
- * 
+ *
  * @since 1.0.0
  */
 public class AuditEvent extends Event {
 
-    /** The Constant serialVersionUID. */
-    private static final long serialVersionUID = -7009763987501353992L;
+	/** The Constant serialVersionUID. */
+	private static final long serialVersionUID = -7009763987501353992L;
 
-    /** The actor. */
-    private String actor;
+	/** The actor. */
+	private String actor;
 
-    /** The origin. */
-    private String origin;
+	/** The origin. */
+	private String origin;
 
-    /** The action. */
-    private String action;
+	/** The action. */
+	private String action;
 
-    /** The action item. */
-    private List<Field> fields = new ArrayList<Field>();
+	/** The action item. */
+	private List<Field> fields = new ArrayList<>();
 
-    /** The tag. */
-    private String tag;
-    
-    /** The repository. */
-    private String repository;
+	/** The tag. */
+	private String tag;
 
-    /**
-     * Instantiates a new audit event.
-     */
-    public AuditEvent() {
+	/** The repository. */
+	private String repository;
 
-    }
+	/**
+	 * Instantiates a new audit event.
+	 */
+	public AuditEvent() {
 
-    /**
-     * Instantiates a new audit event.
-     * 
-     * @param actor
-     *            the actor
-     * @param action
-     *            the action
-     * @param fields
-     *            the fields
-     */
-    public AuditEvent(final String actor, final String action, Field... fields) {
-        this.actor = actor;
-        this.action = action;
-        for (Field field : fields) {
-            addField(field);
-        }
-    }
+	}
 
-    /**
-     * Instantiates a new audit event.
-     * 
-     * @param actor
-     *            the actor
-     * @param action
-     *            the action
-     * @param origin
-     *            the origin
-     * @param fields
-     *            the fields
-     */
-    public AuditEvent(final String actor, final String action, final String origin, Field... fields) {
-        this.actor = actor;
-        this.action = action;
-        this.origin = origin;
-        for (Field field : fields) {
-            addField(field);
-        }
-    }
+	/**
+	 * Instantiates a new audit event.
+	 *
+	 * @param actor
+	 *            the actor
+	 * @param action
+	 *            the action
+	 * @param fields
+	 *            the fields
+	 */
+	public AuditEvent(final String actor, final String action, final Field... fields) {
+		this.actor = actor;
+		this.action = action;
+		for (final Field field : fields) {
+			this.addField(field);
+		}
+	}
 
-    /**
-     * Gets the actor.
-     * 
-     * @return the actor
-     */
-    public String getActor() {
-        return actor;
-    }
+	/**
+	 * Instantiates a new audit event.
+	 *
+	 * @param actor
+	 *            the actor
+	 * @param action
+	 *            the action
+	 * @param origin
+	 *            the origin
+	 * @param fields
+	 *            the fields
+	 */
+	public AuditEvent(final String actor, final String action, final String origin, final Field... fields) {
+		this.actor = actor;
+		this.action = action;
+		this.origin = origin;
+		for (final Field field : fields) {
+			this.addField(field);
+		}
+	}
 
-    /**
-     * Sets the actor.
-     * 
-     * @param actor
-     *            the new actor
-     */
-    public void setActor(final String actor) {
-        this.actor = actor;
-    }
+	/**
+	 * Gets the actor.
+	 *
+	 * @return the actor
+	 */
+	public String getActor() {
 
-    /**
-     * Gets the origin.
-     * 
-     * @return the origin
-     */
-    public String getOrigin() {
-        return origin;
-    }
+		return this.actor;
+	}
 
-    /**
-     * Sets the origin.
-     * 
-     * @param origin
-     *            the new origin
-     */
-    public void setOrigin(final String origin) {
-        this.origin = origin;
-    }
+	/**
+	 * Sets the actor.
+	 *
+	 * @param actor
+	 *            the new actor
+	 */
+	public void setActor(final String actor) {
 
-    /**
-     * Gets the action.
-     * 
-     * @return the action
-     */
-    public String getAction() {
-        return action;
-    }
+		this.actor = actor;
+	}
 
-    /**
-     * Sets the action.
-     * 
-     * @param action
-     *            the new action
-     */
-    public void setAction(final String action) {
-        this.action = action;
-    }
+	/**
+	 * Gets the origin.
+	 *
+	 * @return the origin
+	 */
+	public String getOrigin() {
 
-    /**
-     * Adds the element.
-     * 
-     * @param name
-     *            the name
-     * @param value
-     *            the value
-     * @param type
-     *            the type
-     */
-    public void addField(String name, Object value, Object type) {
-        if (value == null) {
-            this.fields.add(new Field(name, null, null));
-        } else {
-            this.fields.add(new Field(name, value.toString(), type.toString()));
-        }
-    }
+		return this.origin;
+	}
 
-    /**
-     * Adds the field.
-     * 
-     * @param name
-     *            the name
-     * @param value
-     *            the value
-     */
-    public void addField(final String name, final Object value) {
-        if (value == null) {
-            this.fields.add(new Field(name, null, null));
-        } else {
-            this.fields.add(new Field(name, value.toString(), value.getClass().getName()));
-        }
-    }
+	/**
+	 * Sets the origin.
+	 *
+	 * @param origin
+	 *            the new origin
+	 */
+	public void setOrigin(final String origin) {
 
-    /**
-     * Adds the element.
-     * 
-     * @param field
-     *            the field
-     */
-    public void addField(final Field field) {
-        this.fields.add(field);
-    }
+		this.origin = origin;
+	}
 
-    /**
-     * Gets the fields.
-     * 
-     * @return the fields
-     */
-    public List<Field> getFields() {
-        return fields;
-    }
+	/**
+	 * Gets the action.
+	 *
+	 * @return the action
+	 */
+	public String getAction() {
 
-    /**
-     * Sets the fields.
-     * 
-     * @param fields
-     *            the new fields
-     */
-    public void setFields(final List<Field> fields) {
-        this.fields = fields;
-    }
+		return this.action;
+	}
 
-    /**
-     * Gets the tag.
-     *
-     * @return the tag
-     */
-    public String getTag() {
-        return tag;
-    }
+	/**
+	 * Gets the action as AuditAction
+	 *
+	 * @return Audit Action including action, color and icon
+	 */
+	public AuditAction getAuditAction() {
 
-    /**
-     * Sets the tag.
-     *
-     * @param tag the new tag
-     */
-    public void setTag(final String tag) {
-        this.tag = tag;
-    }
+		if (StringUtils.isBlank(this.action)) {
+			return null;
+		}
 
-    /**
-     * Gets the repository.
-     *
-     * @return the repository
-     */
-    public String getRepository() {
-        return repository;
-    }
+		return new Gson().fromJson(this.action, AuditAction.class);
+	}
 
-    /**
-     * {@inheritDoc}
-     * 
-     * @see org.audit4j.core.dto.Event#setRepository(java.lang.String)
-     *
-     */
-    @Override
-    public void setRepository(String repository) {
-        this.repository = repository;
-    }
+	/**
+	 * Sets the action.
+	 *
+	 * @param action
+	 *            the new action
+	 */
+	public void setAction(final String action) {
+
+		this.action = action;
+	}
+
+	/**
+	 * Adds the element.
+	 *
+	 * @param name
+	 *            the name
+	 * @param value
+	 *            the value
+	 * @param type
+	 *            the type
+	 */
+	public void addField(final String name, final Object value, final Object type) {
+
+		if (value == null) {
+			this.fields.add(new Field(name, null, null));
+		}
+		else {
+			this.fields.add(new Field(name, value.toString(), type.toString()));
+		}
+	}
+
+	/**
+	 * Adds the field.
+	 *
+	 * @param name
+	 *            the name
+	 * @param value
+	 *            the value
+	 */
+	public void addField(final String name, final Object value) {
+
+		if (value == null) {
+			this.fields.add(new Field(name, null, null));
+		}
+		else {
+			this.fields.add(new Field(name, value.toString(), value.getClass().getName()));
+		}
+	}
+
+	/**
+	 * Adds the element.
+	 *
+	 * @param field
+	 *            the field
+	 */
+	public void addField(final Field field) {
+
+		this.fields.add(field);
+	}
+
+	/**
+	 * Gets the fields.
+	 *
+	 * @return the fields
+	 */
+	public List<Field> getFields() {
+
+		return this.fields;
+	}
+
+	/**
+	 * Sets the fields.
+	 *
+	 * @param fields
+	 *            the new fields
+	 */
+	public void setFields(final List<Field> fields) {
+
+		this.fields = fields;
+	}
+
+	/**
+	 * Gets the tag.
+	 *
+	 * @return the tag
+	 */
+	public String getTag() {
+
+		return this.tag;
+	}
+
+	/**
+	 * Sets the tag.
+	 *
+	 * @param tag
+	 *            the new tag
+	 */
+	public void setTag(final String tag) {
+
+		this.tag = tag;
+	}
+
+	/**
+	 * Gets the repository.
+	 *
+	 * @return the repository
+	 */
+	public String getRepository() {
+
+		return this.repository;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @see org.audit4j.core.dto.Event#setRepository(java.lang.String)
+	 *
+	 */
+	@Override
+	public void setRepository(final String repository) {
+
+		this.repository = repository;
+	}
 }

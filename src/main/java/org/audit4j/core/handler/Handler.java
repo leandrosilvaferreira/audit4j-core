@@ -19,7 +19,7 @@
 package org.audit4j.core.handler;
 
 import java.io.Serializable;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.audit4j.core.Initializable;
@@ -28,95 +28,125 @@ import org.audit4j.core.exception.HandlerException;
 
 /**
  * The Class Handler.
- * 
+ *
  * @author Janith Bandara
  */
 public abstract class Handler implements Initializable, Serializable {
 
-    /** The Constant serialVersionUID. */
-    private static final long serialVersionUID = -8636058037478806582L;
+	/** The Constant serialVersionUID. */
+	private static final long serialVersionUID = -8636058037478806582L;
 
-    /** The query. */
-    private String query;
+	/** The query. */
+	private String query;
 
-    /** The audit event. */
-    private AuditEvent auditEvent;
+	/** The audit event. */
+	private AuditEvent auditEvent;
 
-    /** The properties. */
-    private Map<String, String> properties;
+	/** The properties. */
+	private Map<String, String> properties;
 
-    /**
-     * Close.
-     */
-    public void close() {
-        query = null;
-        auditEvent = null;
-    }
+	/**
+	 * Close.
+	 */
+	public void close() {
 
-    /**
-     * Handle.
-     * 
-     * @throws HandlerException
-     *             the handler exception
-     */
-    public abstract void handle() throws HandlerException;
+		this.query = null;
+		this.auditEvent = null;
+	}
 
-    /**
-     * Sets the query.
-     * 
-     * @param query
-     *            the new query
-     */
-    public void setQuery(final String query) {
-        this.query = query;
-    }
+	/**
+	 * Handle.
+	 *
+	 * @throws HandlerException
+	 *             the handler exception
+	 */
+	public abstract void handle() throws HandlerException;
 
-    /**
-     * Gets the audit event.
-     * 
-     * @return the audit event
-     */
-    public AuditEvent getAuditEvent() {
-        return auditEvent;
-    }
+	/**
+	 * Return true if the specified handler implements the method findAuditEventsByActor
+	 *
+	 * @return True if audit eventos search is implemented
+	 */
+	public abstract boolean implementsSearch();
 
-    /**
-     * Sets the audit event.
-     * 
-     * @param auditEvent
-     *            the new audit event
-     */
-    public void setAuditEvent(final AuditEvent auditEvent) {
-        this.auditEvent = auditEvent;
-    }
+	/**
+	 * Find last AuditEvents by Actor
+	 *
+	 * @param actor
+	 *            the actor
+	 * @param limit
+	 *            limit of registers
+	 * @param repository
+	 *            repository
+	 * @throws HandlerException
+	 *             exception
+	 * @return
+	 */
+	public abstract List<AuditEvent> findAuditEventsByActor(final String actor, final Integer limit, String repository) throws HandlerException;
 
-    /**
-     * Gets the query.
-     * 
-     * @return the query
-     */
-    public String getQuery() {
-        return query;
-    }
+	/**
+	 * Sets the query.
+	 *
+	 * @param query
+	 *            the new query
+	 */
+	public void setQuery(final String query) {
 
-    /**
-     * Gets the property.
-     * 
-     * @param key
-     *            the key
-     * @return the property
-     */
-    public String getProperty(String key) {
-        return properties.get(key);
-    }
+		this.query = query;
+	}
 
-    /**
-     * Sets the properties.
-     * 
-     * @param properties
-     *            the properties
-     */
-    public void setProperties(final Map<String, String> properties) {
-        this.properties = properties;
-    }
+	/**
+	 * Gets the audit event.
+	 *
+	 * @return the audit event
+	 */
+	public AuditEvent getAuditEvent() {
+
+		return this.auditEvent;
+	}
+
+	/**
+	 * Sets the audit event.
+	 *
+	 * @param auditEvent
+	 *            the new audit event
+	 */
+	public void setAuditEvent(final AuditEvent auditEvent) {
+
+		this.auditEvent = auditEvent;
+	}
+
+	/**
+	 * Gets the query.
+	 *
+	 * @return the query
+	 */
+	public String getQuery() {
+
+		return this.query;
+	}
+
+	/**
+	 * Gets the property.
+	 *
+	 * @param key
+	 *            the key
+	 * @return the property
+	 */
+	public String getProperty(final String key) {
+
+		return this.properties.get(key);
+	}
+
+	/**
+	 * Sets the properties.
+	 *
+	 * @param properties
+	 *            the properties
+	 */
+	public void setProperties(final Map<String, String> properties) {
+
+		this.properties = properties;
+	}
+
 }

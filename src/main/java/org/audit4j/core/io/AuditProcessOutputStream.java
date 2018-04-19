@@ -18,6 +18,9 @@
 
 package org.audit4j.core.io;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.audit4j.core.AuditEventProcessor;
 import org.audit4j.core.ConcurrentConfigurationContext;
 import org.audit4j.core.LifeCycleContext;
@@ -26,7 +29,7 @@ import org.audit4j.core.dto.AuditEvent;
 
 /**
  * The Class AuditProcessOutputStream.
- * 
+ *
  * @author <a href="mailto:janith3000@gmail.com">Janith Bandara</a>
  */
 public class AuditProcessOutputStream implements AuditOutputStream<AuditEvent> {
@@ -37,31 +40,52 @@ public class AuditProcessOutputStream implements AuditOutputStream<AuditEvent> {
 	/**
 	 * Instantiates a new audit process output stream.
 	 *
-	 * @param configContext the config context
+	 * @param configContext
+	 *            the config context
 	 */
-	public AuditProcessOutputStream(ConcurrentConfigurationContext configContext) {
-		processor = new AuditEventProcessor();
-		processor.setConfigContext(configContext);
+	public AuditProcessOutputStream(final ConcurrentConfigurationContext configContext) {
+		this.processor = new AuditEventProcessor();
+		this.processor.setConfigContext(configContext);
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.audit4j.core.io.AuditOutputStream#write(org.audit4j.core.dto.AuditEvent
-	 * )
+	 *
+	 * @see org.audit4j.core.io.AuditOutputStream#write(org.audit4j.core.dto.AuditEvent )
 	 */
 	@Override
-	public AuditProcessOutputStream write(AuditEvent event) {
+	public AuditProcessOutputStream write(final AuditEvent event) {
+
 		if (LifeCycleContext.getInstance().getStatus().equals(RunStatus.RUNNING)) {
-			processor.process(event);
+			this.processor.process(event);
 		}
 		return this;
 	}
 
+	/**
+	 * Find last AuditEvents by Actor
+	 *
+	 * @param actor
+	 *            the actor
+	 * @param limit
+	 *            limit of registers
+	 * @param repository
+	 *            repository
+	 * @return
+	 */
+	@Override
+	public List<AuditEvent> findAuditEventsByActor(final String actor, final Integer limit, final String repository) {
+
+		if (LifeCycleContext.getInstance().getStatus().equals(RunStatus.RUNNING)) {
+			return this.processor.findAuditEventsByActor(actor, limit, repository);
+		}
+		return new ArrayList<>();
+
+	}
+
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.audit4j.core.io.AuditOutputStream#close()
 	 */
 	@Override
@@ -71,11 +95,13 @@ public class AuditProcessOutputStream implements AuditOutputStream<AuditEvent> {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see java.lang.Object#clone()
 	 */
 	@Override
 	public Object clone() {
+
 		return null;
 	}
+
 }

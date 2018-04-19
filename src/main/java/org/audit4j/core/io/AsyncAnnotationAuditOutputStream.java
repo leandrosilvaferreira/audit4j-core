@@ -19,6 +19,7 @@
 package org.audit4j.core.io;
 
 import java.lang.reflect.Method;
+import java.util.List;
 
 import org.audit4j.core.AnnotationTransformer;
 import org.audit4j.core.dto.AnnotationAuditEvent;
@@ -28,108 +29,128 @@ import reactor.core.Environment;
 import reactor.core.composable.Deferred;
 import reactor.core.composable.Stream;
 import reactor.core.composable.spec.Streams;
-import reactor.function.Consumer;
 import reactor.function.support.Boundary;
 
 /**
  * The Class AnnotationAuditOutputStream.
- * 
+ *
  * @author <a href="mailto:janith3000@gmail.com">Janith Bandara</a>
- * 
+ *
  * @since 2.0.0
  */
-public class AsyncAnnotationAuditOutputStream implements AuditOutputStream<AnnotationAuditEvent>{
+public class AsyncAnnotationAuditOutputStream implements AuditOutputStream<AnnotationAuditEvent> {
 
-    /** The output stream. */
-    AuditOutputStream<AuditEvent> outputStream;
+	/** The output stream. */
+	AuditOutputStream<AuditEvent> outputStream;
 
-    /** The annotation deferred. */
-    Deferred<AnnotationAuditEvent, Stream<AnnotationAuditEvent>> annotationDeferred = null;
+	/** The annotation deferred. */
+	Deferred<AnnotationAuditEvent, Stream<AnnotationAuditEvent>> annotationDeferred = null;
 
-    /** The Constant ENV. */
-    static Environment ENV ;
-    
-    /** The b. */
-    Boundary b = null;
+	/** The Constant ENV. */
+	static Environment ENV;
 
-    /**
-     * Instantiates a new annotation audit output stream.
-     *
-     * @param outputStream            the output stream
-     * @param transformer the transformer
-     */
-    public AsyncAnnotationAuditOutputStream(final AuditOutputStream<AuditEvent> outputStream, final AnnotationTransformer transformer) {
-        ENV = new Environment();
-        this.outputStream = outputStream;
-        b = new Boundary();
-        
-        annotationDeferred = Streams.<AnnotationAuditEvent> defer().env(ENV).dispatcher(Environment.RING_BUFFER).get();
-        Stream<AnnotationAuditEvent> annostream = annotationDeferred.compose();
-        annostream.consume(b.bind(new Consumer<AnnotationAuditEvent>() {
-            @Override
-            public void accept(AnnotationAuditEvent annotationEvent) {
-                AuditEvent event = transformer.transformToEvent(annotationEvent);
-                // event is null if annotation is not found
-                if (event != null) {
-                    outputStream.write(event);
-                }
-            }
-        }));
-    }
+	/** The b. */
+	Boundary b = null;
 
-    /**
-     * Write.
-     * 
-     * @param event
-     *            the event
-     * @return the annotation audit output stream
-     */
-    @Override
-    public AsyncAnnotationAuditOutputStream write(AnnotationAuditEvent event) {
-        annotationDeferred.accept(event);
-        b.await();
-        return this;
-    }
+	/**
+	 * Instantiates a new annotation audit output stream.
+	 *
+	 * @param outputStream
+	 *            the output stream
+	 * @param transformer
+	 *            the transformer
+	 */
+	public AsyncAnnotationAuditOutputStream(final AuditOutputStream<AuditEvent> outputStream, final AnnotationTransformer transformer) {
+		ENV = new Environment();
+		this.outputStream = outputStream;
+		this.b = new Boundary();
 
-    /**
-     * Write.
-     * 
-     * @param clazz
-     *            the clazz
-     * @param method
-     *            the method
-     * @param args
-     *            the args
-     * @return the annotation audit output stream
-     */
-    public AsyncAnnotationAuditOutputStream write(Class<?> clazz, Method method, Object[] args) {
-        AnnotationAuditEvent event = new AnnotationAuditEvent();
-        event.setClazz(clazz);
-        event.setMethod(method);
-        event.setArgs(args);
-        annotationDeferred.accept(event);
-        b.await();
-        return this;
-    }
+		this.annotationDeferred = Streams.<AnnotationAuditEvent>defer().env(ENV).dispatcher(Environment.RING_BUFFER).get();
+		final Stream<AnnotationAuditEvent> annostream = this.annotationDeferred.compose();
+		annostream.consume(this.b.bind(annotationEvent -> {
 
-    /**
-     * Close.
-     */
-    @Override
-    public void close() {
-        ENV.shutdown();
-        if (outputStream != null) {
-            outputStream.close();
-        }
-    }
+			final AuditEvent event = transformer.transformToEvent(annotationEvent);
+			// event is null if annotation is not found
+			if (event != null) {
+				outputStream.write(event);
+			}
+		}));
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#clone()
-     */
-    @Override
-    public Object clone() {
-        return null;
-    }
+	/**
+	 * Write.
+	 *
+	 * @param event
+	 *            the event
+	 * @return the annotation audit output stream
+	 */
+	@Override
+	public AsyncAnnotationAuditOutputStream write(final AnnotationAuditEvent event) {
+
+		this.annotationDeferred.accept(event);
+		this.b.await();
+		return this;
+	}
+
+	/**
+	 * Write.
+	 *
+	 * @param clazz
+	 *            the clazz
+	 * @param method
+	 *            the method
+	 * @param args
+	 *            the args
+	 * @return the annotation audit output stream
+	 */
+	public AsyncAnnotationAuditOutputStream write(final Class<?> clazz, final Method method, final Object[] args) {
+
+		final AnnotationAuditEvent event = new AnnotationAuditEvent();
+		event.setClazz(clazz);
+		event.setMethod(method);
+		event.setArgs(args);
+		this.annotationDeferred.accept(event);
+		this.b.await();
+		return this;
+	}
+
+	/**
+	 * Close.
+	 */
+	@Override
+	public void close() {
+
+		ENV.shutdown();
+		if (this.outputStream != null) {
+			this.outputStream.close();
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 *
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	public Object clone() {
+
+		return null;
+	}
+
+	/**
+	 * Find last AuditEvents by Actor
+	 *
+	 * @param actor
+	 *            the actor
+	 * @param limit
+	 *            limit of registers
+	 * @param repository
+	 *            repository
+	 * @return List of audit events
+	 */
+	@Override
+	public List<AnnotationAuditEvent> findAuditEventsByActor(final String actor, final Integer limit, final String repository) {
+
+		throw new UnsupportedOperationException();
+	}
 }

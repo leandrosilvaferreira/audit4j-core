@@ -26,190 +26,208 @@ import org.audit4j.core.dto.AuditEvent;
 import org.audit4j.core.filter.AuditAnnotationFilter;
 
 /**
- * The AuditManager. This class is used to submit audit events as well as
- * annotations. This is the only audit submission end point of the Audit4j.
- * 
+ * The AuditManager. This class is used to submit audit events as well as annotations. This is the only audit submission
+ * end point of the Audit4j.
+ *
  * @author <a href="mailto:janith3000@gmail.com">Janith Bandara</a>
- * 
+ *
  * @since 1.0.0
  */
 public final class AuditManager implements IAuditManager {
 
-    /** The audit manager. */
-    private static volatile IAuditManager auditManager;
-    
-    /**
-     * Instantiates a new audit manager.
-     */
-    private AuditManager() {
-    }
+	/** The audit manager. */
+	private static volatile IAuditManager auditManager;
 
-    /**
-     * Audit.
-     * 
-     * @param event
-     *            the event
-     * @return true, if successful
-     */
-    public boolean audit(AuditEvent event) {
-        Context.getAuditStream().write(event);
-        return true;
-    }
+	/**
+	 * Instantiates a new audit manager.
+	 */
+	private AuditManager() {
+	}
 
-    /**
-     * Audit with annotation.
-     * 
-     * @param clazz
-     *            the clazz
-     * @param method
-     *            the method
-     * @param args
-     *            the args
-     * @return true, if successful
-     * 
-     */
-    public boolean audit(Class<?> clazz, Method method, Object[] args) {
-        return audit(new AnnotationAuditEvent(clazz, method, args));
-    }
+	/**
+	 * Audit.
+	 *
+	 * @param event
+	 *            the event
+	 * @return true, if successful
+	 */
+	@Override
+	public boolean audit(final AuditEvent event) {
 
-    /**
-     * Audit.
-     * 
-     * @param annotationEvent
-     *            the annotation event
-     * @return true, if successful
-     */
-    public boolean audit(AnnotationAuditEvent annotationEvent) {
-        List<AuditAnnotationFilter> filters = Context.getConfigContext().getAnnotationFilters();
-        if (!filters.isEmpty()) {
-            for (AuditAnnotationFilter filter : filters) {
-                if (!filter.accepts(annotationEvent)) {
-                    return false;
-                }
-            }
-        }
-        Context.getAuditStream().write(annotationEvent);
-        return true;
-    }
+		Context.getAuditStream().write(event);
+		return true;
+	}
 
-    /**
-     * Gets the single instance of AuditHelper.
-     * 
-     * @return single instance of AuditHelper
-     */
-    public static IAuditManager getInstance() {
-        IAuditManager result = auditManager;
-        if(result == null) {
-            synchronized (AuditManager.class) {
-                result = auditManager;
-                if(result == null) {
-                    Context.init();
-                    auditManager = result = new AuditManager();
-                }
-            }
-        }
-        return result;
-    }
+	@Override
+	public List<AuditEvent> findAuditEventsByActor(final String actor, final Integer limit, final String repository) {
 
-    /**
-     * This method allows to external plugins can inject the configurations.
-     * Since the security reasons, this allows to create one time configuration
-     * setting to Audit4j.
-     * 
-     * @param configuration
-     *            the configuration
-     * @return the configuration instance
-     * 
-     * @since 2.1.0
-     * 
-     * @deprecated
-     */
-    @Deprecated
-    public static IAuditManager getConfigurationInstance(Configuration configuration) {
-        Context.setConfig(configuration);
-        return getInstance();
-    }
+		return Context.getAuditStream().findAuditEventsByActor(actor, limit, repository);
+	}
 
-    /**
-     * Inits the with configuration.
-     * 
-     * @param configuration
-     *            the configuration
-     * @return the audit manager
-     * @deprecated This method allows to external plugins can inject the
-     *             configurations. Since the security reasons, this allows to
-     *             create one time configuration setting to Audit4j.
-     * @since 2.3.0
-     */
-    @Deprecated
-    public static IAuditManager initWithConfiguration(Configuration configuration) {
-        Context.setConfig(configuration);
-        return getInstance();
-    }
+	/**
+	 * Audit with annotation.
+	 *
+	 * @param clazz
+	 *            the clazz
+	 * @param method
+	 *            the method
+	 * @param args
+	 *            the args
+	 * @return true, if successful
+	 *
+	 */
+	@Override
+	public boolean audit(final Class<?> clazz, final Method method, final Object[] args) {
 
-    /**
-     * This method allows to external plugins can inject the configurations.
-     * Since the security reasons, this allows to create one time configuration
-     * setting to Audit4j.
-     * 
-     * @param configuration
-     *            the configuration
-     * @return the audit manager
-     * 
-     * @since 2.3.1
-     */
-    public static IAuditManager startWithConfiguration(Configuration configuration) {
-        Context.setConfig(configuration);
-        return getInstance();
-    }
+		return this.audit(new AnnotationAuditEvent(clazz, method, args));
+	}
 
-    /**
-     * Initialize audit4j with external configuration file.
-     * 
-     * This method allows to external plugins can inject the configurations.
-     * Since the security reasons, this allows to create one time configuration
-     * setting to Audit4j.
-     * 
-     * @param configFilePath
-     *            the config file path
-     * @return the audit manager
-     * @since 2.3.1
-     */
-    public static IAuditManager startWithConfiguration(String configFilePath) {
-        Context.setConfigFilePath(configFilePath);
-        return getInstance();
-    }
+	/**
+	 * Audit.
+	 *
+	 * @param annotationEvent
+	 *            the annotation event
+	 * @return true, if successful
+	 */
+	@Override
+	public boolean audit(final AnnotationAuditEvent annotationEvent) {
 
-    /**
-     * Initialize the audit4j.
-     * 
-     * @return the audit manager
-     * 
-     * @since 2.4.1
-     */
-    public static IAuditManager start() {
-        return getInstance();
-    }
-    
-    /**
-     * Shutdown.
-     */
-    public static void shutdown() {
-        auditManager = null;
-        Context.stop();
-    }
-    
-    /**
-     * Enable.
-     */
-    public static void enable() {
-        Context.enable();
-    }
-    
-    /**
-     * Disable.
-     */
-    public static void disable() {
-        Context.disable();
-    }
+		final List<AuditAnnotationFilter> filters = Context.getConfigContext().getAnnotationFilters();
+		if (!filters.isEmpty()) {
+			for (final AuditAnnotationFilter filter : filters) {
+				if (!filter.accepts(annotationEvent)) {
+					return false;
+				}
+			}
+		}
+		Context.getAuditStream().write(annotationEvent);
+		return true;
+	}
+
+	/**
+	 * Gets the single instance of AuditHelper.
+	 *
+	 * @return single instance of AuditHelper
+	 */
+	public static IAuditManager getInstance() {
+
+		IAuditManager result = auditManager;
+		if (result == null) {
+			synchronized (AuditManager.class) {
+				result = auditManager;
+				if (result == null) {
+					Context.init();
+					auditManager = result = new AuditManager();
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * This method allows to external plugins can inject the configurations. Since the security reasons, this allows to
+	 * create one time configuration setting to Audit4j.
+	 *
+	 * @param configuration
+	 *            the configuration
+	 * @return the configuration instance
+	 *
+	 * @since 2.1.0
+	 *
+	 * @deprecated
+	 */
+	@Deprecated
+	public static IAuditManager getConfigurationInstance(final Configuration configuration) {
+
+		Context.setConfig(configuration);
+		return getInstance();
+	}
+
+	/**
+	 * Inits the with configuration.
+	 *
+	 * @param configuration
+	 *            the configuration
+	 * @return the audit manager
+	 * @deprecated This method allows to external plugins can inject the configurations. Since the security reasons,
+	 *             this allows to create one time configuration setting to Audit4j.
+	 * @since 2.3.0
+	 */
+	@Deprecated
+	public static IAuditManager initWithConfiguration(final Configuration configuration) {
+
+		Context.setConfig(configuration);
+		return getInstance();
+	}
+
+	/**
+	 * This method allows to external plugins can inject the configurations. Since the security reasons, this allows to
+	 * create one time configuration setting to Audit4j.
+	 *
+	 * @param configuration
+	 *            the configuration
+	 * @return the audit manager
+	 *
+	 * @since 2.3.1
+	 */
+	public static IAuditManager startWithConfiguration(final Configuration configuration) {
+
+		Context.setConfig(configuration);
+		return getInstance();
+	}
+
+	/**
+	 * Initialize audit4j with external configuration file.
+	 *
+	 * This method allows to external plugins can inject the configurations. Since the security reasons, this allows to
+	 * create one time configuration setting to Audit4j.
+	 *
+	 * @param configFilePath
+	 *            the config file path
+	 * @return the audit manager
+	 * @since 2.3.1
+	 */
+	public static IAuditManager startWithConfiguration(final String configFilePath) {
+
+		Context.setConfigFilePath(configFilePath);
+		return getInstance();
+	}
+
+	/**
+	 * Initialize the audit4j.
+	 *
+	 * @return the audit manager
+	 *
+	 * @since 2.4.1
+	 */
+	public static IAuditManager start() {
+
+		return getInstance();
+	}
+
+	/**
+	 * Shutdown.
+	 */
+	public static void shutdown() {
+
+		auditManager = null;
+		Context.stop();
+	}
+
+	/**
+	 * Enable.
+	 */
+	public static void enable() {
+
+		Context.enable();
+	}
+
+	/**
+	 * Disable.
+	 */
+	public static void disable() {
+
+		Context.disable();
+	}
+
 }

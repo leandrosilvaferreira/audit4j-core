@@ -1,31 +1,46 @@
+
 package org.audit4j.core.handler;
 
+import java.util.List;
+
+import org.audit4j.core.dto.AuditEvent;
 import org.audit4j.core.exception.HandlerException;
 import org.audit4j.core.exception.InitializationException;
 
-public class HandlerTest extends Handler{
+public class HandlerTest extends Handler {
 
-    private static final long serialVersionUID = 9065571812432575838L;
+	private static final long serialVersionUID = 9065571812432575838L;
 
+	@Override
+	public void init() throws InitializationException {
+		// TODO Auto-generated method stub
 
-    
-    @Override
-    public void init() throws InitializationException {
-        // TODO Auto-generated method stub
-        
-    }
+	}
 
-    @Override
-    public void stop() {
-        // TODO Auto-generated method stub
-        
-    }
+	@Override
+	public void stop() {
+		// TODO Auto-generated method stub
 
-    @Override
-    public void handle() throws HandlerException {
-        // TODO Auto-generated method stub
-        
-    }
-    
+	}
+
+	@Override
+	public void handle() throws HandlerException {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public List<AuditEvent> findAuditEventsByActor(final String actor, final Integer limit, final String repository) throws HandlerException {
+
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean implementsSearch() {
+
+		// TODO Auto-generated method stub
+		return false;
+	}
 
 }
