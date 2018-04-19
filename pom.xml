@@ -148,18 +148,6 @@
 <!-- 		</snapshotRepository> -->
 <!-- 	</distributionManagement> -->
 
-	<distributionManagement>
-		<snapshotRepository>
-			<id>snapshot</id>
-			<name>Internal Snapshots</name>
-			<url>http://deploy1.psainfo.prv:8081/repository/maven-snapshots/</url>
-		</snapshotRepository>
-		<repository>
-			<id>releases</id>
-			<name>Internal Releases</name>
-			<url>http://deploy1.psainfo.prv:8081/repository/maven-releases/</url>
-		</repository>
-	</distributionManagement>
 
 	<build>
 		<plugins>
