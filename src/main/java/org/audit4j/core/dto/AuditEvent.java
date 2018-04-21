@@ -168,6 +168,26 @@ public class AuditEvent extends Event {
 	}
 
 	/**
+	 * Gets the origin as AuditOrigin
+	 *
+	 * @return Audit Origin including ip, hostname, city, etc
+	 */
+	public AuditOrigin getAuditOrigin() {
+
+		if (StringUtils.isBlank(this.origin)) {
+			return null;
+		}
+
+		try {
+			return new Gson().fromJson(this.origin, AuditOrigin.class);
+		}
+		catch (final Exception e) {
+			return AuditOrigin.builder().ip(this.origin).build();
+		}
+
+	}
+
+	/**
 	 * Sets the action.
 	 *
 	 * @param action
